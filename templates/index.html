@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>College Library - {{ page|title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main>
+    <h1>College Library Management System</h1>
+
+    <nav aria-label="Library pages">
+      <a class="nav-button" href="{{ url_for('index', page='home') }}">Home</a>
+      <a class="nav-button" href="{{ url_for('index', page='add') }}">Add Books</a>
+      <a class="nav-button" href="{{ url_for('index', page='issue') }}">Issue Book</a>
+      <a class="nav-button" href="{{ url_for('index', page='issued') }}">Issued Books</a>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <p class="message {{ category }}">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if page == "home" %}
+      <section class="home-page">
+        <p>Choose an option:</p>
+        <a class="home-button" href="{{ url_for('index', page='add') }}">Add or Manage Books</a>
+        <a class="home-button" href="{{ url_for('index', page='issue') }}">Issue a Book</a>
+        <a class="home-button" href="{{ url_for('index', page='issued') }}">View Issued Books</a>
+      </section>
+    {% elif page == "add" %}
+      <section>
+        <h2>Add or Manage Books</h2>
+        <form class="simple-form" method="post" action="{{ url_for('add_book') }}">
+          <label for="name">Book name</label>
+          <input id="name" name="name" type="text" required>
+          <label for="author">Author name</label>
+          <input id="author" name="author" type="text" required>
+          <label for="quantity">Quantity</label>
+          <input id="quantity" name="quantity" type="number" min="1" required>
+          <button type="submit">Add Book</button>
+        </form>
+
+        <h3>Book list (select a book to delete):</h3>
+        {% if books %}
+          <div class="table-container">
+            <table>
+              <thead><tr><th>ID</th><th>Book name</th><th>Author</th><th>Available</th><th>Action</th></tr></thead>
+              <tbody>
+                {% for book in books %}
+                  <tr>
+                    <td>{{ book.id }}</td>
+                    <td>{{ book.name }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.quantity }}</td>
+                    <td>
+                      <form method="post" action="{{ url_for('delete_book', book_id=book.id) }}">
+                        <button type="submit" {% if book.quantity < 1 %}disabled{% endif %}>Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p>No books have been added yet.</p>
+        {% endif %}
+        <p><a href="{{ url_for('export_books') }}">Download books as JSON</a></p>
+      </section>
+    {% elif page == "issue" %}
+      <section>
+        <h2>Issue a Book</h2>
+        {% if available_books %}
+          <form class="simple-form" method="post" action="{{ url_for('issue_book') }}">
+            <label for="book-id">Select a book</label>
+            <select id="book-id" name="book_id" required>
+              {% for book in available_books %}
+                <option value="{{ book.id }}">{{ book.name }} by {{ book.author }} ({{ book.quantity }} available)</option>
+              {% endfor %}
+            </select>
+            <label for="student-name">Student name</label>
+            <input id="student-name" name="student_name" type="text" required>
+            <label for="course">Course</label>
+            <input id="course" name="course" type="text" required>
+            <label for="due-date">Return due date (YYYY-MM-DD)</label>
+            <input id="due-date" name="due_date" type="date" min="{{ today }}" required>
+            <button type="submit">Issue Selected Book</button>
+          </form>
+        {% else %}
+          <p>No books are available to issue.</p>
+        {% endif %}
+      </section>
+    {% else %}
+      <section>
+        <h2>Issued Books</h2>
+        <p>Select an issued book to return it:</p>
+        {% if issued_books %}
+          <div class="table-container">
+            <table>
+              <thead><tr><th>ID</th><th>Book</th><th>Student</th><th>Course</th><th>Due date</th><th>Action</th></tr></thead>
+              <tbody>
+                {% for loan in issued_books %}
+                  <tr>
+                    <td>{{ loan.id }}</td>
+                    <td>{{ loan.book_name }}</td>
+                    <td>{{ loan.student_name }}</td>
+                    <td>{{ loan.course or "Course not recorded" }}</td>
+                    <td>{{ loan.due_date or "Not recorded" }}</td>
+                    <td>
+                      <form method="post" action="{{ url_for('return_book', transaction_id=loan.id) }}">
+                        <button type="submit">Return Book</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p>No books are currently on loan.</p>
+        {% endif %}
+      </section>
+    {% endif %}
+  </main>
+</body>
+</html>

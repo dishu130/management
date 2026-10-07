@@ -1,0 +1,164 @@
+body {
+  background: #f0f0f0;
+  color: #111;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  margin: 0;
+}
+
+main {
+  margin: 0 auto;
+  max-width: 950px;
+  padding: 18px 17px 30px;
+}
+
+h1 {
+  font-size: 25px;
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-button,
+button,
+.home-button {
+  background: #f4f4f4;
+  border: 1px solid #aaa;
+  border-radius: 2px;
+  box-shadow: 0 1px 1px #999;
+  color: #111;
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: 6px 9px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.nav-button:hover,
+button:hover:not(:disabled),
+.home-button:hover {
+  background: #e5e5e5;
+}
+
+.home-page {
+  margin-top: 40px;
+}
+
+.home-page p {
+  margin: 0 0 18px 3px;
+}
+
+.home-button {
+  box-sizing: border-box;
+  display: block;
+  margin-bottom: 10px;
+  max-width: 226px;
+  padding: 6px 10px;
+  width: 100%;
+}
+
+section:not(.home-page) {
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  margin-top: 22px;
+  padding: 16px;
+}
+
+h2 {
+  font-size: 20px;
+  margin: 0 0 15px;
+}
+
+h3 {
+  font-size: 16px;
+  margin: 20px 0 10px;
+}
+
+.simple-form {
+  display: grid;
+  gap: 8px;
+  max-width: 420px;
+}
+
+input,
+select {
+  border: 1px solid #999;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 5px;
+  width: 100%;
+}
+
+.simple-form button {
+  margin-top: 5px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 10px;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #aaa;
+  padding: 7px;
+  text-align: left;
+}
+
+th {
+  background: #e5e5e5;
+}
+
+td form {
+  margin: 0;
+}
+
+.message {
+  border: 1px solid;
+  margin-top: 16px;
+  padding: 9px;
+}
+
+.message.success {
+  background: #e8f1e8;
+  border-color: #9aaa9a;
+}
+
+.message.error {
+  background: #f8e8e5;
+  border-color: #bd928c;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h1 {
+    font-size: 21px;
+  }
+
+  nav {
+    flex-wrap: wrap;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 560px;
+  }
+}
