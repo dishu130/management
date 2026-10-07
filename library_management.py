@@ -11,11 +11,32 @@ from flask import Flask, current_app, flash, jsonify, redirect, render_template,
 
 
 class LibraryDatabase:
+    @staticmethod
+    def _resolve_default_db_path():
+        if os.environ.get("DATABASE_PATH"):
+            return Path(os.environ["DATABASE_PATH"])
+        local_db = Path(__file__).resolve().with_name("library.db")
+        is_serverless = bool(
+            os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME")
+        )
+        if is_serverless or not os.access(local_db.parent, os.W_OK):
+            import shutil
+            import tempfile
+
+            tmp_db = Path(tempfile.gettempdir()) / "library.db"
+            if not tmp_db.exists() and local_db.exists():
+                try:
+                    shutil.copyfile(local_db, tmp_db)
+                except Exception:
+                    pass
+            return tmp_db
+        return local_db
+
     def __init__(self, database_path=None):
         self.database_path = (
             Path(database_path)
             if database_path is not None
-            else Path(__file__).resolve().with_name("library.db")
+            else self._resolve_default_db_path()
         )
         with self._connect() as connection:
             connection.execute(
@@ -220,16 +241,22 @@ class LibraryDatabase:
 
 
 def create_app(database_path=None):
-    app = Flask(__name__)
+    base_dir = Path(__file__).resolve().parent
+    app = Flask(
+        __name__,
+        template_folder=str(base_dir / "templates"),
+        static_folder=str(base_dir / "static"),
+    )
     app.config["SECRET_KEY"] = os.environ.get(
         "LIBRARY_SECRET_KEY", "development-key-change-before-deployment"
     )
-    app.config["DATABASE"] = (
+    db_path = (
         Path(database_path)
         if database_path is not None
-        else Path(__file__).resolve().with_name("library.db")
+        else LibraryDatabase._resolve_default_db_path()
     )
-    database = LibraryDatabase(app.config["DATABASE"])
+    app.config["DATABASE"] = db_path
+    database = LibraryDatabase(db_path)
     app.extensions["library_database"] = database
 
     @app.get("/")
@@ -355,10 +382,13 @@ def _report_database_error():
     current_app.logger.exception("Library database operation failed")
 
 
+app = create_app()
+
+
 def main():
     logging.basicConfig(level=logging.INFO)
-    app = create_app()
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
 
 
 if __name__ == "__main__":
