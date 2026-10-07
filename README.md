@@ -27,3 +27,4 @@ The app creates `library.db` beside `library_management.py` on its first run. If
 - **Exception handling:** invalid input is reported to the user, and database failures are logged and surfaced as an error message.
 - **Database connectivity:** SQLite connections use parameterized queries and transaction handling.
 # collegelibrary
+# lib
