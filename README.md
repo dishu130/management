@@ -28,3 +28,4 @@ The app creates `library.db` beside `library_management.py` on its first run. If
 - **Database connectivity:** SQLite connections use parameterized queries and transaction handling.
 # collegelibrary
 # lib
+# libb
