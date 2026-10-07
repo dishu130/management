@@ -275,6 +275,23 @@ def create_app(database_path=None):
             today=date.today().isoformat(),
         )
 
+    @app.get("/home")
+    def home_route():
+        return redirect(url_for("index", page="home"))
+
+    @app.get("/add")
+    @app.get("/books")
+    def add_route():
+        return redirect(url_for("index", page="add"))
+
+    @app.get("/issue")
+    def issue_route():
+        return redirect(url_for("index", page="issue"))
+
+    @app.get("/issued")
+    def issued_route():
+        return redirect(url_for("index", page="issued"))
+
     @app.post("/books")
     def add_book():
         name = request.form.get("name", "").strip()
@@ -375,6 +392,17 @@ def create_app(database_path=None):
             download_name="library-books.json",
         )
 
+    @app.errorhandler(404)
+    def handle_not_found(error):
+        flash("The requested page was not found. Redirected to Home.", "error")
+        return redirect(url_for("index", page="home"))
+
+    @app.errorhandler(500)
+    def handle_server_error(error):
+        _report_database_error()
+        flash("An unexpected server error occurred. Please try again.", "error")
+        return redirect(url_for("index", page="home"))
+
     return app
 
 
@@ -383,6 +411,7 @@ def _report_database_error():
 
 
 app = create_app()
+application = app  # Standard WSGI alias for cloud deployments (Gunicorn, Vercel, PythonAnywhere)
 
 
 def main():

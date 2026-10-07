@@ -7,3 +7,6 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from library_management import app
+
+# Vercel serverless function entrypoint
+handler = app

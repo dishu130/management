@@ -138,6 +138,24 @@ class LibraryWebAppTests(unittest.TestCase):
         self.assertIn(b"<h2>Add or Manage Books</h2>", delete_response.data)
         self.assertEqual(self.client.get("/api/books").json["books"], [])
 
+    def test_route_redirects_and_not_found_handling(self):
+        # Direct routes should redirect properly without 404
+        for path, expected_page in [
+            ("/home", "home"),
+            ("/add", "add"),
+            ("/books", "add"),
+            ("/issue", "issue"),
+            ("/issued", "issued"),
+        ]:
+            resp = self.client.get(path, follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.request.args.get("page"), expected_page)
+
+        # Invalid URL should be redirected to home with flash message
+        invalid_resp = self.client.get("/nonexistent-page", follow_redirects=True)
+        self.assertEqual(invalid_resp.status_code, 200)
+        self.assertIn(b"The requested page was not found", invalid_resp.data)
+
 
 if __name__ == "__main__":
     unittest.main()
